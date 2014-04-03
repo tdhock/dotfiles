@@ -26,10 +26,11 @@ works_with_R <- function(Rvers,...){
     vers <- pkg.vers[[pkg.i]]
     pkg <- names(pkg.vers)[[pkg.i]]
     if(pkg == ""){# Then it is from GitHub.
-      if(!require(requireGitHub, quietly=TRUE)){
+      ## suppressWarnings is quieter than quiet.
+      if(!suppressWarnings(require(requireGitHub))){
         ## If requireGitHub is not available, then install it using
         ## devtools.
-        if(!require(devtools, quietly=TRUE)){
+        if(!suppressWarnings(require(devtools))){
           install.packages("devtools")
           require(devtools)
         }
@@ -38,7 +39,7 @@ works_with_R <- function(Rvers,...){
       }
       requireGitHub(vers)
     }else{# it is from a CRAN-like repos.
-      if(!require(pkg, character.only=TRUE, quietly=TRUE)){
+      if(!suppressWarnings(require(pkg, character.only=TRUE))){
         install.packages(pkg)
       }
       pkg_ok_have(pkg, vers, packageVersion(pkg))
