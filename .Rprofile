@@ -24,7 +24,11 @@ works_with_R <- function(Rvers,...){
   pkg.vers <- list(...)
   for(pkg.i in seq_along(pkg.vers)){
     vers <- pkg.vers[[pkg.i]]
-    pkg <- names(pkg.vers)[[pkg.i]]
+    pkg <- if(is.null(names(pkg.vers))){
+      ""
+    }else{
+      names(pkg.vers)[[pkg.i]]
+    }
     if(pkg == ""){# Then it is from GitHub.
       ## suppressWarnings is quieter than quiet.
       if(!suppressWarnings(require(requireGitHub))){
