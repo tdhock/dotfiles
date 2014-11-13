@@ -18,3 +18,14 @@ pattern <-
          "@",
          "(?<GithubSHA1>[a-f0-9]{40})")
 str_match_perl(subject, pattern)
+
+## when there are no capturing groups defined, we can still return the
+## entire match.
+no.groups <-
+  paste0("[^/]+",
+         "/",
+         "[^@]+",
+         "@",
+         "[a-f0-9]{40}")
+str_match_perl(subject, no.groups)
+str_match_all_perl(subject, no.groups)
