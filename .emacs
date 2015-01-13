@@ -6,16 +6,24 @@
 (autoload 'R-mode "ess-site.el" "ESS" t)
 (autoload 'r-mode "ess-site.el" "ESS" t)
 (autoload 'Rd-mode "ess-site.el" "ESS" t)
-(autoload 'noweb-mode "ess-site.el" "ESS" t)
+(autoload 'Rnw-mode "ess-site.el" "ESS" t)
 (add-to-list 'auto-mode-alist '("\\.R$" . R-mode))
 (add-to-list 'auto-mode-alist '("\\.r$" . R-mode))
 (add-to-list 'auto-mode-alist '("\\.Rd$" . Rd-mode))
-(add-to-list 'auto-mode-alist '("\\.Rnw$" . noweb-mode))
+(add-to-list 'auto-mode-alist '("\\.Rnw$" . Rnw-mode))
 ;; Most important ESS options.
 (setq ess-eval-visibly-p nil)
 (setq ess-ask-for-ess-directory nil)
 (setq ess-default-style 'DEFAULT)
 (require 'ess-eldoc "ess-eldoc" t)
+;; auto-complete, from http://ygc.name/2014/12/07/auto-complete-in-ess/
+(add-to-list 'load-path "~/auto-complete-1.3.1")
+(setq ess-use-auto-complete t)
+(require 'auto-complete)
+(require 'auto-complete-config)
+(add-to-list 'ac-dictionary-directories "~/auto-complete-1.3.1/dict")
+(ac-config-default)
+(auto-complete-mode)
 
 ;; Emacs stuff.
 (global-set-key "\M-s" 'isearch-forward-regexp)
@@ -95,8 +103,5 @@
 (put 'downcase-region 'disabled nil)
 (put 'narrow-to-region 'disabled nil)
 
-;awesome autocompletion.
-(require 'auto-complete-config)
-(ac-config-default)
 
 
