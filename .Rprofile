@@ -161,13 +161,16 @@ if(interactive())suppressMessages({
   }
 
   ## Use the *nix wc program to quickly determine the number of lines
-  ## of a file.
+  ## of a file (and print the first few lines).
   wc <- function(f){
     stopifnot(is.character(f))
     stopifnot(length(f)==1)
     if(file.exists(f)){
-      cmd <- sprintf("wc -l '%s'",f)
-      as.integer(sub(" .*","",system(cmd,intern=TRUE)))
+      system(paste("head", f))
+      cmd <- sprintf("wc -l %s", f)
+      wc.txt <- system(cmd, intern=TRUE)
+      wc.sub <- sub(" .*","",wc.txt)
+      as.integer(wc.sub)
     }else{
       0L
     }
