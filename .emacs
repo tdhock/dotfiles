@@ -1,3 +1,6 @@
+;; font size in units of 1/10 point.
+(set-face-attribute 'default nil :height 110)
+
 ;;ess-mode NOTE: if site-wide file is present, it is read first, and
 ;;if it loads ess, then the following code will not do anything!
 ;;Furthermore, if we need to load user-specific ESS, then we need to
