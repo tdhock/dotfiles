@@ -19,6 +19,8 @@
 (setq ess-ask-for-ess-directory nil)
 (setq ess-default-style 'DEFAULT)
 (require 'ess-eldoc "ess-eldoc" t)
+(setq ess-eldoc-show-on-symbol t)
+
 ;; auto-complete, from http://ygc.name/2014/12/07/auto-complete-in-ess/
 (add-to-list 'load-path "~/auto-complete-1.3.1")
 (setq ess-use-auto-complete t)
@@ -27,6 +29,8 @@
 (add-to-list 'ac-dictionary-directories "~/auto-complete-1.3.1/dict")
 (ac-config-default)
 (auto-complete-mode)
+(setq ac-auto-start nil)
+(define-key ac-mode-map (kbd "C-TAB") 'auto-complete)
 
 ;; Emacs stuff.
 (global-set-key "\M-s" 'isearch-forward-regexp)
