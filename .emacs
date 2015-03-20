@@ -17,11 +17,29 @@
 ;; Most important ESS options.
 (setq ess-eval-visibly-p nil)
 (setq ess-ask-for-ess-directory nil)
-(setq ess-default-style 'DEFAULT)
 (require 'ess-eldoc "ess-eldoc" t)
 (setq ess-eldoc-show-on-symbol t)
 
-;; auto-complete, from http://ygc.name/2014/12/07/auto-complete-in-ess/
+;; ggplot indentation https://github.com/emacs-ess/ESS/issues/120
+(load "ess-site.el")
+(add-to-list 'ess-style-alist
+ '(tdh-style
+   (ess-indent-level default-value 'ess-indent-level)
+
+   (ess-first-continued-statement-offset . 2)
+   (ess-continued-statement-offset . 0)
+
+   (ess-brace-offset default-value 'ess-brace-offset)
+   (ess-expression-offset default-value 'ess-expression-offset)
+   (ess-else-offset default-value 'ess-else-offset)
+   (ess-brace-imaginary-offset default-value 'ess-brace-imaginary-offset)
+   (ess-continued-brace-offset default-value 'ess-continued-brace-offset)
+   (ess-arg-function-offset default-value 'ess-arg-function-offset)
+   (ess-arg-function-offset-new-line default-value 'ess-arg-function-offset-new-line)
+   (ess-close-brace-offset default-value 'ess-close-brace-offset))
+)
+(setq ess-default-style 'tdh-style)
+;; from http://ygc.name/2014/12/07/auto-complete-in-ess/
 (add-to-list 'load-path "~/auto-complete-1.3.1")
 (setq ess-use-auto-complete t)
 (require 'auto-complete)
@@ -30,7 +48,11 @@
 (ac-config-default)
 (auto-complete-mode)
 (setq ac-auto-start nil)
-(define-key ac-mode-map (kbd "C-TAB") 'auto-complete)
+;(setq ac-auto-start 5)
+(setq ac-quick-help-delay 2)
+(define-key ac-mode-map [C-tab] 'auto-complete);C-tab auto-complete
+(setq ess-describe-at-point-method 'tooltip);C-c C-d C-e C-e help window
+
 
 ;; Emacs stuff.
 (global-set-key "\M-s" 'isearch-forward-regexp)
