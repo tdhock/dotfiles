@@ -61,6 +61,7 @@ options(repos=c(
 if(interactive())suppressMessages({
   options(bitmapType="cairo")
   require(grDevices)
+  X11.options(type="cairo")
   x11(width=17.5,height=10.2,xpos=-1,ypos=-1)
   library(lattice)
   lattice.options(print.function = function(x, ...) {
