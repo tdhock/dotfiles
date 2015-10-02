@@ -187,5 +187,79 @@ if(interactive())suppressMessages({
     ps.table
   }
   
+
+  hms <- function(seconds){
+    divide <- function(numerator, denominator){
+      list(quotient=numerator %/% denominator,
+           remainder=numerator %% denominator)
+    }
+    minutes <- divide(seconds, 60)
+    hours <- divide(minutes$quo, 60)
+    days <- divide(hours$quo, 24)
+    browser()
+    if(any(h > 0)){
+      sprintf("%dh%dm", h, m)
+    }else{
+      sprintf("%dm%ds", m, s)
+    }
+  }
+
+  ## Keep running the code in expr every 2 seconds.
+  watch <- function(expr, seconds=2){
+    e <- substitute(expr)
+    while(TRUE){
+      print(Sys.time())
+      val <- eval(e)
+      print(val)
+      Sys.sleep(seconds)
+    }
+  }
+
+  meminfo <- function(){
+    meminfo.df <- read.table("/proc/meminfo", sep=":", row.names=1)
+    names(meminfo.df) <- c("text")
+    meminfo.df$digits <- gsub("[^0-9]", "", meminfo.df$text)
+    meminfo.df$unit <- ifelse(grepl("kB", meminfo.df$text), "kB", "pages")
+    meminfo.df$value <- as.numeric(meminfo.df$digits)
+    meminfo.df$megabytes <- as.integer(meminfo.df$value/1024)
+  }
+
+  vmstat <- function(){
+    vmstat.pattern <-
+      paste0(" *",
+             "(?<value>[0-9]+)",
+             " ",
+             "(?<variable>.*)")
+    vmstat.lines <- system("vmstat -s", intern=TRUE)
+    vmstat.mat <- str_match_perl(vmstat.lines, vmstat.pattern)
+    vmstat.df <-
+      data.frame(value=as.numeric(vmstat.mat[, "value"]),
+                 row.names=vmstat.mat[, "variable"])
+    vmstat.df$megabytes <- as.integer(vmstat.df$value/1024)
+    vmstat.df
+  }
+
+  free <- function(){
+    free.lines <- system("free -m", intern=TRUE)
+    df <- read.table(text=free.lines, sep=":", row.names=1)
+    names(df) <- "values"
+    mb.text <- sub(" +.*", "", sub("^ *", "", df$values))
+    data.frame(megabytes=as.numeric(mb.text),
+               row.names=c("total", "used", "swap"))
+  }
+  
+  ann.colors <-
+    c(noPeaks="#f6f4bf",
+      peakStart="#ffafaf",
+      peakEnd="#ff4c4c",
+      peaks="#a445ee")
+  hex.color.pattern <-
+    paste0("#?",
+           "(?<red>[0-9a-fA-F]{2})",
+           "(?<green>[0-9a-fA-F]{2})",
+           "(?<blue>[0-9a-fA-F]{2})")
+  hex.mat <- str_match_perl(ann.colors, hex.color.pattern)
+  dec.mat <- apply(hex.mat[,-1], 2, function(x)strtoi(paste0("0x", x)))
+  dput(apply(dec.mat, 1, paste, collapse=","))
 })
 
