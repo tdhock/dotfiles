@@ -1,6 +1,20 @@
 ;; font size in units of 1/10 point.
 (set-face-attribute 'default nil :height 110)
 
+;; arduino-mode
+;; sudo aptitude install arduino arduino-mk (installs a perl command line prog)
+;; git clone git://github.com/bookest/arduino-mode.git
+(add-to-list 'load-path "~/arduino-mode")
+(add-to-list 'auto-mode-alist '("\\.\\(pde\\|ino\\)$" . arduino-mode))
+(autoload 'arduino-mode "arduino-mode.el" "Arduino editing mode" t)
+;; git clone git://github.com/sudar/Arduino-Makefile
+;; put "include ~/Arduino-Makefile/Arduino.mk" in Makefile.
+(add-hook 'arduino-mode-hook 
+	  (lambda ()
+;; make compile-command buffer-local so that "make upload" is not used
+;; for other projects.
+	    (set (make-local-variable 'compile-command) "make upload")))
+
 ;;ess-mode NOTE: if site-wide file is present, it is read first, and
 ;;if it loads ess, then the following code will not do anything!
 ;;Furthermore, if we need to load user-specific ESS, then we need to
