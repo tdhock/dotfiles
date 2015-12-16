@@ -1,3 +1,6 @@
 Configuration files
 
 This repository contains startup/configuration files.
+- [[file:.emacs]]
+- [[file:.Rprofile]] ([[file:examples.R]])
+- [[file:install-r-devel.sh]]

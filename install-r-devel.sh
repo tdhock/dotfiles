@@ -1,0 +1,42 @@
+#!/bin/bash
+set -o errexit
+
+## on my ubuntu system the zlib1g-dev is version 1.2.3.4, but new R
+## requires zlib version >= 1.2.5.
+cd ~/R
+wget http://zlib.net/zlib-1.2.8.tar.gz
+tar xvf zlib-1.2.8.tar.gz
+cd zlib-1.2.8
+./configure --prefix=$HOME
+make
+make install
+
+## same for curl-dev: libcurl4-gnutls-dev 7.22.0 but R needs libcurl
+## version >= 7.28.0.
+cd ~/R
+wget http://curl.haxx.se/download/curl-7.46.0.tar.gz
+tar xf curl-7.46.0.tar.gz
+cd curl-7.46.0
+./configure --prefix=$HOME
+make
+make install
+
+## bz2, lzma development libraries now required.
+sudo aptitude install libbz2-dev liblzma-dev zlib1g-dev libcurl4-gnutls-dev
+
+## Download R-devel source code to ~/R/R-devel
+cd ~/R
+if [ -f R-devel.tar.gz ];then 
+    rm R-devel.tar.gz
+fi
+wget ftp://ftp.stat.math.ethz.ch/Software/R/R-devel.tar.gz
+if [ -d R-devel ];then
+    rm -r R-devel
+fi
+tar xf R-devel.tar.gz
+
+## Build and install R.
+cd ~/R/R-devel
+CPPFLAGS=-I$HOME/include ./configure --prefix=$HOME --with-cairo
+make
+make install
