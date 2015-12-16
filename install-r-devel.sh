@@ -45,6 +45,13 @@ cd ~/R/R-devel
 CPPFLAGS="-I$HOME/include -L$HOME/lib" ./configure --prefix=$HOME --with-cairo
 make
 
+## Check if the shared libraries are linking to the correct files
+## under $HOME/lib:
+cd src/modules/internet/
+rm libcurl.o 
+make
+ldd internet.so | grep libcurl
+
 ## I don't install R-devel, since I only use it for checking packages
 ## before submission to CRAN. For the purposes of reproducible
 ## research I would rather use a specific release version of R
