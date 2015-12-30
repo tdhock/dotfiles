@@ -247,6 +247,26 @@ if(interactive())suppressMessages({
     data.frame(megabytes=as.numeric(mb.text),
                row.names=c("total", "used", "swap"))
   }
+
+  ## Special print method for long character strings.
+  print.character <- function(x, ...){
+    row.vec <- rownames(x)
+    row.chars <- if(is.null(row.vec)){
+      0
+    }else{
+      max(nchar(row.vec))
+    }
+    max.chars <- getOption("width") - row.chars
+    is.big <- max.chars < nchar(x)
+    if(any(is.big)){
+      n <- max.chars - 10
+      cat("... = only printed first", n, "characters.\n")
+      first <- ifelse(is.big, paste0(substr(x, 1, n), "..."), x)
+      print.default(first, ...)
+    }else{
+      print.default(x, ...)
+    }
+  }
   
   ann.colors <-
     c(noPeaks="#f6f4bf",
