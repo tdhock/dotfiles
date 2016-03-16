@@ -148,3 +148,12 @@
 
 
 
+;;polymode (only supports emacs >= 24.4)
+(if (version< emacs-version "24.4") 
+    (message "emacs too old, not loading polymode")
+    (and (add-to-list 'load-path "~/polymode")
+	 (add-to-list 'load-path "~/polymode/modes")
+	 ;;http://jblevins.org/projects/markdown-mode/markdown-mode.el
+	 (autoload 'poly-markdown+r-mode "poly-R.el" "Rmd" t)
+	 (autoload 'markdown-mode "markdown-mode.el" "markdown" t)
+	 (add-to-list 'auto-mode-alist '("\\.Rmd" . poly-markdown+r-mode))))
