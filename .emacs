@@ -158,3 +158,11 @@
 	 (autoload 'poly-markdown+r-mode "poly-R.el" "Rmd" t)
 	 (autoload 'markdown-mode "markdown-mode.el" "markdown" t)
 	 (add-to-list 'auto-mode-alist '("\\.Rmd" . poly-markdown+r-mode))))
+;; https://github.com/melpa/melpa#usage
+(require 'package)
+(add-to-list 'package-archives
+             '("melpa" . "https://melpa.org/packages/") t)
+(when (< emacs-major-version 24)
+  ;; For important compatibility libraries like cl-lib
+  (add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/")))
+(package-initialize)
