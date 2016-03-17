@@ -11,7 +11,7 @@ cd ../jkOwnLib
 make
 sudo apt-get install libmysqlclient-dev
 cd ../utils
-for util in bigWigToBedGraph bedToBigBed; do
+for util in bigWigToBedGraph bedToBigBed bigWigInfo; do
     cd $util
     make
     cd ..

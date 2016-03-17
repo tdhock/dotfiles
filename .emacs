@@ -148,8 +148,9 @@
 
 
 
-;;polymode (only supports emacs >= 24.4)
+;;https://github.com/vspinu/polymode (only supports emacs >= 24.4)
 (if (version< emacs-version "24.4") 
+    ;;http://ftpmirror.gnu.org/emacs/
     (message "emacs too old, not loading polymode")
     (and (add-to-list 'load-path "~/polymode")
 	 (add-to-list 'load-path "~/polymode/modes")
