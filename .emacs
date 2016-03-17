@@ -166,3 +166,10 @@
   ;; For important compatibility libraries like cl-lib
   (add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/")))
 (package-initialize)
+;;excute all code blocks in an Rmd.
+(defun Rmd-execute-all-code-blocks ()
+  "Run keyboard macro until bell rings"
+  (interactive)
+  (execute-kbd-macro "\C-s```{\C-n\C-a\C- \C-s```\C-p\C-e\C-c\C-r" 0)
+  )
+
