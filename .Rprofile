@@ -58,6 +58,17 @@ options(repos=c(
           "http://probability.ca/cran",
           "http://cran.r-project.org"))
 
+## Make sure we have a version of RSelenium that works for testing
+## animint.
+works_with_R(
+  "3.2.2",
+  "ropensci/RSelenium@22f06b9f2a675015d0daa3318319044e4e60d2fa")
+bin.dir <- system.file("bin", package="RSelenium", mustWork=TRUE)
+jar.file <- file.path(bin.dir, "selenium-server-standalone.jar")
+if(!file.exists(jar.file)){
+  download.file("http://selenium-release.storage.googleapis.com/2.47/selenium-server-standalone-2.47.0.jar", jar.file)
+}
+
 if(interactive())suppressMessages({
   options(bitmapType="cairo")
   require(grDevices)
