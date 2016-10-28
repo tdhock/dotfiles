@@ -95,81 +95,6 @@ if(interactive())suppressMessages({
   }
   if(require(ggplot2)){
     theme_set(theme_bw())
-    facet_grid_label <- function(f,...){
-      facet_grid(f,labeller=function(var,val)sprintf("%s : %s",var,val))
-    }
-  }
-
-  ## Parse the first occurance of pattern from each of several strings
-  ## using (named) capturing regular expressions, returning a matrix
-  ## (with column names).
-  str_match_perl <- function(string,pattern){
-    stopifnot(is.character(string))
-    stopifnot(is.character(pattern))
-    stopifnot(length(pattern)==1)
-    parsed <- regexpr(pattern,string,perl=TRUE)
-    captured.text <- substr(string,parsed,parsed+attr(parsed,"match.length")-1)
-    captured.text[captured.text==""] <- NA
-    captured.groups <- if(is.null(attr(parsed, "capture.start"))){
-      NULL
-    }else{
-      do.call(rbind,lapply(seq_along(string),function(i){
-        st <- attr(parsed,"capture.start")[i,]
-        if(is.na(parsed[i]) || parsed[i]==-1)return(rep(NA,length(st)))
-        substring(string[i],st,st+attr(parsed,"capture.length")[i,]-1)
-      }))
-    }
-    result <- cbind(captured.text,captured.groups)
-    colnames(result) <- c("",attr(parsed,"capture.names"))
-    result
-  }
-  regexpr.groups <- function(pattern,string){
-    str_match_perl(string,pattern)[,-1]
-  }
-
-  ## Parse several occurances of pattern from each of several strings
-  ## using (named) capturing regular expressions, returning a list of
-  ## matrices (with column names).
-  str_match_all_perl <- function(string,pattern){
-    stopifnot(is.character(string))
-    stopifnot(is.character(pattern))
-    stopifnot(length(pattern)==1)
-    parsed <- gregexpr(pattern,string,perl=TRUE)
-    lapply(seq_along(parsed),function(i){
-      r <- parsed[[i]]
-      full <- substring(string[i],r,r+attr(r,"match.length")-1)
-      starts <- attr(r,"capture.start")
-      if(is.null(starts)){
-        m <- cbind(full)
-        colnames(m) <- ""
-        m
-      }else{
-        if(r[1]==-1)return(matrix(nrow=0,ncol=1+ncol(starts)))
-        names <- attr(r,"capture.names")
-        lengths <- attr(r,"capture.length")
-        subs <- substring(string[i],starts,starts+lengths-1)
-        m <- matrix(c(full,subs),ncol=length(names)+1)
-        colnames(m) <- c("",names)
-        m
-      }
-    })
-  }
-  gregexpr.groups <- function(pattern,string){
-    lists <- str_match_all_perl(string,pattern)
-    lapply(lists,function(m)m[,-1])
-  }
-
-  ## Parse html to find the first occurence of match which is preceded
-  ## by before. A quick way to parse 1 thing out of several files.
-  get.first <- function(html,before,match){
-    stopifnot(is.character(before))
-    stopifnot(is.character(match))
-    stopifnot(length(before)==1)
-    stopifnot(length(match)==1)
-    pattern <- sprintf("%s(%s)",before,match)
-    p <- regexpr(pattern,html,perl=TRUE)
-    st <- attr(p,"capture.start")
-    substr(html,st,st+attr(p,"capture.length")-1)
   }
 
   ## Use the *nix wc program to quickly determine the number of lines
@@ -235,21 +160,6 @@ if(interactive())suppressMessages({
     meminfo.df$megabytes <- as.integer(meminfo.df$value/1024)
   }
 
-  vmstat <- function(){
-    vmstat.pattern <-
-      paste0(" *",
-             "(?<value>[0-9]+)",
-             " ",
-             "(?<variable>.*)")
-    vmstat.lines <- system("vmstat -s", intern=TRUE)
-    vmstat.mat <- str_match_perl(vmstat.lines, vmstat.pattern)
-    vmstat.df <-
-      data.frame(value=as.numeric(vmstat.mat[, "value"]),
-                 row.names=vmstat.mat[, "variable"])
-    vmstat.df$megabytes <- as.integer(vmstat.df$value/1024)
-    vmstat.df
-  }
-
   free <- function(){
     free.lines <- system("free -m", intern=TRUE)
     df <- read.table(text=free.lines, sep=":", row.names=1)
@@ -278,19 +188,68 @@ if(interactive())suppressMessages({
       print.default(x, ...)
     }
   }
-  
-  ann.colors <-
-    c(noPeaks="#f6f4bf",
-      peakStart="#ffafaf",
-      peakEnd="#ff4c4c",
-      peaks="#a445ee")
-  hex.color.pattern <-
-    paste0("#?",
-           "(?<red>[0-9a-fA-F]{2})",
-           "(?<green>[0-9a-fA-F]{2})",
-           "(?<blue>[0-9a-fA-F]{2})")
-  hex.mat <- str_match_perl(ann.colors, hex.color.pattern)
-  dec.mat <- apply(hex.mat[,-1], 2, function(x)strtoi(paste0("0x", x)))
-  dput(apply(dec.mat, 1, paste, collapse=","))
+
+  if(require(namedCapture)){
+    vmstat <- function(){
+      vmstat.pattern <-
+        paste0(" *",
+               "(?<value>[0-9]+)",
+               " ",
+               "(?<name>.*)")
+      vmstat.lines <- system("vmstat -s", intern=TRUE)
+      vmstat.df <- str_match_named(vmstat.lines, vmstat.pattern, list(value=as.numeric))
+      vmstat.df$megabytes <- as.integer(vmstat.df$value/1024)
+      vmstat.df
+    }
+    ## Take a character vector of chromosomes such as chr1, chr2,
+    ## chr10, chr20, chrX, chrY, chr17, chr17_ctg5_hap1 and assign
+    ## each a number that sorts them first numerically if it exists,
+    ## then using the _suffix, then alphabetically.
+    orderChrom <- function(chrom.vec, ...){
+      stopifnot(is.character(chrom.vec))
+      chr.pattern <- paste0(
+        "chr",
+        "(?<before>[^_]+)",
+        "(?<after>_.*)?")
+      value.vec <- unique(chrom.vec)
+      chr.mat <- str_match_named(value.vec, chr.pattern)
+      did.not.match <- is.na(chr.mat[, 1])
+      if(any(did.not.match)){
+        print(value.vec[did.not.match])
+        stop("chroms did not match ", chr.pattern)
+      }
+      rank.vec <- order(
+        suppressWarnings(as.numeric(chr.mat[, "before"])),
+        chr.mat[, "before"],
+        chr.mat[, "after"])
+      names(rank.vec) <- value.vec
+      order(rank.vec[chrom.vec], ...)
+    } 
+    test.input <- data.table(
+      chrom=c("chr1", "chr1", "chr10", "chr2", "chrX", "chrY", "chr17", "chr17_ctg5_hap1"),
+      pos = c(     2,      1,      0,       0,      0,      0,       0,                 0))
+    test.output <- test.input[orderChrom(chrom, pos),]
+    stopifnot(identical(
+      test.output$chrom,
+      c("chr1", "chr1", "chr2", "chr10", "chr17", "chr17_ctg5_hap1", "chrX", "chrY")
+      ))
+    stopifnot(identical(
+      test.output$pos,
+      c(1, 2, 0, 0, 0, 0, 0, 0)))
+    ## Converting color hex strings to matrices in R.
+    ann.colors <-
+      c(noPeaks="#f6f4bf",
+        peakStart="#ffafaf",
+        peakEnd="#ff4c4c",
+        peaks="#a445ee")
+    hex.color.pattern <-
+      paste0("#?",
+             "(?<red>[0-9a-fA-F]{2})",
+             "(?<green>[0-9a-fA-F]{2})",
+             "(?<blue>[0-9a-fA-F]{2})")
+    hex.mat <- str_match_named(ann.colors, hex.color.pattern)
+    dec.mat <- apply(hex.mat, 2, function(x)strtoi(paste0("0x", x)))
+    dput(apply(dec.mat, 1, paste, collapse=","))
+  }
 })
 
