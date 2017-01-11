@@ -236,7 +236,7 @@ if(interactive())suppressMessages({
       ))
     stopifnot(identical(
       test.output$pos,
-      c(1, 2, 0, 0, 0, 0, 0, 0)))
+      c(1, 2, 0, 0, 0, 0, 0, 0, 0)))
     factorChrom <- function(chrom.vec){
       u.vec <- unique(chrom.vec)
       ord.vec <- u.vec[orderChrom(u.vec)]
