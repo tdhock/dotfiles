@@ -218,24 +218,30 @@ if(interactive())suppressMessages({
         print(value.vec[did.not.match])
         stop("chroms did not match ", chr.pattern)
       }
-      rank.vec <- order(
+      ord.vec <- order(
         suppressWarnings(as.numeric(chr.mat[, "before"])),
         chr.mat[, "before"],
         chr.mat[, "after"])
-      names(rank.vec) <- value.vec
+      rank.vec <- seq_along(value.vec)
+      names(rank.vec) <- value.vec[ord.vec]
       order(rank.vec[chrom.vec], ...)
     } 
     test.input <- data.table(
-      chrom=c("chr1", "chr1", "chr10", "chr2", "chrX", "chrY", "chr17", "chr17_ctg5_hap1"),
-      pos = c(     2,      1,      0,       0,      0,      0,       0,                 0))
+      chrom=c("chr1", "chr1", "chr10", "chr2", "chrY", "chrX", "chr17_ctg5_hap1", "chr21", "chr17"),
+      pos = c(     2,      1,      0,       0,      0,      0,       0,      0,           0))
     test.output <- test.input[orderChrom(chrom, pos),]
     stopifnot(identical(
       test.output$chrom,
-      c("chr1", "chr1", "chr2", "chr10", "chr17", "chr17_ctg5_hap1", "chrX", "chrY")
+      c("chr1", "chr1", "chr2", "chr10", "chr17", "chr17_ctg5_hap1", "chr21", "chrX", "chrY")
       ))
     stopifnot(identical(
       test.output$pos,
       c(1, 2, 0, 0, 0, 0, 0, 0)))
+    factorChrom <- function(chrom.vec){
+      u.vec <- unique(chrom.vec)
+      ord.vec <- u.vec[orderChrom(u.vec)]
+      factor(chrom.vec, ord.vec)
+    }
     ## Converting color hex strings to matrices in R.
     ann.colors <-
       c(noPeaks="#f6f4bf",
