@@ -38,19 +38,10 @@
 (load "ess-site.el")
 (add-to-list 'ess-style-alist
  '(tdh-style
-   (ess-indent-level default-value 'ess-indent-level)
-
-   (ess-first-continued-statement-offset . 2)
-   (ess-continued-statement-offset . 0)
-
-   (ess-brace-offset default-value 'ess-brace-offset)
-   (ess-expression-offset default-value 'ess-expression-offset)
-   (ess-else-offset default-value 'ess-else-offset)
-   (ess-brace-imaginary-offset default-value 'ess-brace-imaginary-offset)
-   (ess-continued-brace-offset default-value 'ess-continued-brace-offset)
-   (ess-arg-function-offset default-value 'ess-arg-function-offset)
-   (ess-arg-function-offset-new-line default-value 'ess-arg-function-offset-new-line)
-   (ess-close-brace-offset default-value 'ess-close-brace-offset))
+   (ess-indent-offset . 2)
+   (ess-offset-continued . straight)
+   (ess-offset-arguments-newline . prev-line)
+   (ess-indent-with-fancy-comments . t)
 )
 (setq ess-default-style 'tdh-style)
 ;; from http://ygc.name/2014/12/07/auto-complete-in-ess/
