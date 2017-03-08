@@ -13,11 +13,8 @@
 ### we use install_github to get it, if necessary.
 works_with_R <- function(Rvers,...){
   local.lib <- file.path(getwd(), "library")
-  old.path.vec <- .libPaths()
-  if(! local.lib %in% old.path.vec){
-    dir.create(local.lib, showWarnings=FALSE, recursive=TRUE)
-    .libPaths(local.lib)
-  }
+  dir.create(local.lib, showWarnings=FALSE, recursive=TRUE)
+  .libPaths(local.lib)
   pkg_ok_have <- function(pkg,ok,have){
     stopifnot(is.character(ok))
     if(!as.character(have) %in% ok){
