@@ -229,12 +229,12 @@ if(interactive())suppressMessages({
       names(rank.vec) <- value.vec[ord.vec]
       order(rank.vec[chrom.vec], ...)
     } 
-    test.input <- data.table(
+    test.input <- data.frame(
       chrom=c("chr1", "chr1", "chr10", "chr2", "chrY", "chrX", "chr17_ctg5_hap1", "chr21", "chr17"),
       pos = c(     2,      1,      0,       0,      0,      0,       0,      0,           0))
-    test.output <- test.input[orderChrom(chrom, pos),]
+    test.output <- test.input[with(test.input, orderChrom(paste(chrom), pos)),]
     stopifnot(identical(
-      test.output$chrom,
+      paste(test.output$chrom),
       c("chr1", "chr1", "chr2", "chr10", "chr17", "chr17_ctg5_hap1", "chr21", "chrX", "chrY")
       ))
     stopifnot(identical(
