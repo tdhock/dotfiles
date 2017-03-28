@@ -95,9 +95,6 @@ if(interactive())suppressMessages({
     trellis.par.set(theme=simpleTheme(col=custom.pal))
     ##show.settings()
   }
-  if(require(ggplot2)){
-    theme_set(theme_bw())
-  }
 
   ## Use the *nix wc program to quickly determine the number of lines
   ## of a file (and print the first few lines).
