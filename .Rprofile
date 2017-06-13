@@ -208,8 +208,12 @@ if(interactive())suppressMessages({
       stopifnot(is.character(chrom.vec))
       chr.pattern <- paste0(
         "chr",
-        "(?<before>[^_]+)",
-        "(?<after>_.*)?")
+        "(?<name_or_number>[^:_]+)",
+        "(?<extra_name>_[^:]*)?",
+        ":?",
+        "(?<chromStart>[^-]*)?",
+        "-?",
+        "(?<chromEnd>[^-]*)?")
       value.vec <- unique(chrom.vec)
       chr.mat <- str_match_named(value.vec, chr.pattern)
       did.not.match <- is.na(chr.mat[, 1])
@@ -218,9 +222,10 @@ if(interactive())suppressMessages({
         stop("chroms did not match ", chr.pattern)
       }
       ord.vec <- order(
-        suppressWarnings(as.numeric(chr.mat[, "before"])),
-        chr.mat[, "before"],
-        chr.mat[, "after"])
+        suppressWarnings(as.numeric(chr.mat[, "name_or_number"])),
+        chr.mat[, "name_or_number"],
+        chr.mat[, "extra_name"],
+        as.numeric(chr.mat[, "chromStart"]))
       rank.vec <- seq_along(value.vec)
       names(rank.vec) <- value.vec[ord.vec]
       order(rank.vec[chrom.vec], ...)
