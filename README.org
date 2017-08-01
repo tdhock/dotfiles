@@ -3,8 +3,8 @@ Configuration files
 ** Startup files
 - [[file:.emacs]]
 - [[file:.Rprofile]] ([[file:examples.R]])
-
+  
 ** Installation scripts
-- [[file:install-r-devel.sh]]
+- [[file:install-r-devel.sh]] for installing R (with dependencies in non-standard directories, use LDFLAGS=-L$HOME/lib
 - [[file:compile-ucsc.sh]]
 - [[file:install-ucsc.sh]]
