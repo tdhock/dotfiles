@@ -35,6 +35,7 @@ sudo aptitude install libbz2-dev liblzma-dev zlib1g-dev libcurl4-gnutls-dev
 cd
 wget ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.41.tar.bz2
 tar xf pcre-8.41.tar.bz2
+cd pcre-8.41
 # The --enable-utf8 flag is essential!! otherwise R configure fails
 # with error: pcre >= 8.10 library and headers are required
 ./configure --enable-utf8 --prefix=$HOME 
@@ -46,7 +47,8 @@ cd ~/R
 if [ -f R-devel.tar.gz ];then 
     rm R-devel.tar.gz
 fi
-wget ftp://ftp.stat.math.ethz.ch/Software/R/R-devel.tar.gz
+# old ftp://ftp.stat.math.ethz.ch/Software/R/R-devel.tar.gz
+wget ftp://ftp.stat.math.ethz.ch/CRAN/src/base/R-3/R-3.4.1.tar.gz
 if [ -d R-devel ];then
     rm -r R-devel
 fi
