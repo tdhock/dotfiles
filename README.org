@@ -5,6 +5,8 @@ Configuration files
 - [[file:.Rprofile]] ([[file:examples.R]])
   
 ** Installation scripts
-- [[file:install-r-devel.sh]] for installing R (with dependencies in non-standard directories, use LDFLAGS=-L$HOME/lib
+- [[file:install-r-devel.sh]] for installing R -- with dependencies in
+  non-standard directories, use LDFLAGS=-L$HOME/lib and
+  CPPFLAGS=-I$HOME/include
 - [[file:compile-ucsc.sh]]
 - [[file:install-ucsc.sh]]

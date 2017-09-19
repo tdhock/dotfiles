@@ -23,6 +23,22 @@ cd curl-7.46.0
 make
 make install
 
+## on guillimin there are no bzip2 headers.
+cd ~/R
+wget http://www.bzip.org/1.0.6/bzip2-1.0.6.tar.gz
+tar xf bzip2-1.0.6.tar.gz
+cd bzip2-1.0.6
+make
+make install PREFIX=$HOME
+
+## on guillimin R also complains about liblzma (xz)
+wget https://tukaani.org/xz/xz-5.2.3.tar.gz
+tar xf xz-5.2.3.tar.gz
+cd xz-5.2.3
+./configure --prefix=$HOME
+make
+make install
+
 ## Very important: update global ldconfig cache, otherwise ldd will
 ## not show the correct link to our files under $HOME/lib
 sudo ldconfig $HOME/lib
@@ -56,7 +72,7 @@ tar xf R-devel.tar.gz
 
 ## Build R.
 cd ~/R/R-devel
-LDFLAGS=-L$HOME/lib ./configure --prefix=$HOME --with-cairo --with-blas --with-lapack --enable-R-shlib
+CPPFLAGS=-I$HOME/include LDFLAGS=-L$HOME/lib ./configure --prefix=$HOME --with-cairo --with-blas --with-lapack --enable-R-shlib
 make
 
 ## Check if the shared libraries are linking to the correct files
