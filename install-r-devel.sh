@@ -1,7 +1,9 @@
 #!/bin/bash
 set -o errexit
 
-## similar, read http://pj.freefaculty.org/blog/?p=315
+## What I usually do to compile R is similar to
+## http://pj.freefaculty.org/blog/?p=315 but I do NOT set PATH nor
+## LD_LIBRARY_PATH.
 
 ## on my ubuntu system the zlib1g-dev is version 1.2.3.4, but new R
 ## requires zlib version >= 1.2.5.
@@ -28,6 +30,9 @@ cd ~/R
 wget http://www.bzip.org/1.0.6/bzip2-1.0.6.tar.gz
 tar xf bzip2-1.0.6.tar.gz
 cd bzip2-1.0.6
+## /usr/bin/ld: /home/thocking/lib/libbz2.a(bzlib.o): relocation R_X86_64_32S against `.text' can not be used when making a shared object; recompile with -fPIC
+# add -fPIC to CFLAGS in Makefile!!!
+sed -i 's/^CFLAGS=-Wall/CFLAGS=-fPIC -Wall/' Makefile
 make
 make install PREFIX=$HOME
 
@@ -48,7 +53,7 @@ sudo ldconfig $HOME/lib
 sudo aptitude install libbz2-dev liblzma-dev zlib1g-dev libcurl4-gnutls-dev
 
 ##PCRE
-cd
+cd ~/R
 wget ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.41.tar.bz2
 tar xf pcre-8.41.tar.bz2
 cd pcre-8.41
@@ -72,7 +77,7 @@ tar xf R-devel.tar.gz
 
 ## Build R.
 cd ~/R/R-devel
-CPPFLAGS=-I$HOME/include LDFLAGS=-L$HOME/lib ./configure --prefix=$HOME --with-cairo --with-blas --with-lapack --enable-R-shlib
+CPPFLAGS=-I$HOME/include LDFLAGS="-L$HOME/lib -Wl,-rpath=$HOME/lib" ./configure --prefix=$HOME --with-cairo --with-blas --with-lapack --enable-R-shlib
 make
 
 ## Check if the shared libraries are linking to the correct files
