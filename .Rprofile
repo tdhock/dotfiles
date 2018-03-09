@@ -140,13 +140,16 @@ if(interactive())suppressMessages({
     minutes <- divide(seconds, 60)
     hours <- divide(minutes$quo, 60)
     days <- divide(hours$quo, 24)
-    browser()
+    h <- hours$quo
+    m <- hours$rem
+    s <- minutes$rem
     if(any(h > 0)){
-      sprintf("%dh%dm", h, m)
+      ifelse(0 < h, sprintf("%dh%dm", h, m), sprintf("%dm", m))
     }else{
       sprintf("%dm%ds", m, s)
     }
   }
+
 
   ## Keep running the code in expr every 2 seconds.
   watch <- function(expr, seconds=2){
