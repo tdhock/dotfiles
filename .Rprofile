@@ -121,7 +121,16 @@ if(interactive())suppressMessages({
     ps.table$megabytes <- ps.table$RSS/1024
     ps.table
   }
-  
+
+  ## convert an author list string from an automatically formatted
+  ## bibtex entry (Hocking, Toby Dylan and Rigaill, Guillem) to a
+  ## human readable abbreviated list (Hocking TD, Rigaill G).
+  bibAuthors2text <- function(authors.str){
+    authors.vec <- strsplit(authors.str, " and ")[[1]]
+    authors.mat <- namedCapture::str_match_named(authors.vec, "(?<last>[^,]+), (?<first>[^ ]+)(?: (?<rest>.*))?")
+    abbrev.vec <- data.table(authors.mat)[, paste0(last, " ", substr(first, 1, 1), substr(rest, 1, 1))]
+    paste(abbrev.vec, collapse=", ")
+  }
 
   hms <- function(seconds){
     divide <- function(numerator, denominator){
