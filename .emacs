@@ -164,3 +164,66 @@
   (execute-kbd-macro "\C-s```{\C-n\C-a\C- \C-s```\C-p\C-e\C-c\C-r" 0)
   )
 
+(require 'mu4e)
+
+;; use mu4e for e-mail in emacs
+(setq mail-user-agent 'mu4e-user-agent)
+
+;; default
+;; (setq mu4e-maildir "~/Maildir")
+
+(setq mu4e-drafts-folder "/Drafts")
+(setq mu4e-sent-folder   "/Sent Items")
+(setq mu4e-trash-folder  "/Deleted Items")
+
+;; don't save message to Sent Messages, Gmail/IMAP takes care of this
+(setq mu4e-sent-messages-behavior 'delete)
+
+;; (See the documentation for `mu4e-sent-messages-behavior' if you have
+;; additional non-Gmail addresses and want assign them different
+;; behavior.)
+
+;; setup some handy shortcuts
+;; you can quickly switch to your Inbox -- press ``ji''
+;; then, when you want archive some messages, move them to
+;; the 'All Mail' folder by pressing ``ma''.
+
+(setq mu4e-maildir-shortcuts
+    '( ("/INBOX"               . ?i)
+       ("/Sent Items"   . ?s)
+       ("/Deleted Items"       . ?t)
+       ("/All Mail"    . ?a)))
+
+;; allow for updating mail using 'U' in the main view:
+(setq mu4e-get-mail-command "offlineimap")
+
+;; something about ourselves
+(setq
+   user-mail-address "toby.hocking@nau.edu"
+   user-full-name  "Toby Dylan Hocking"
+   mu4e-compose-signature
+   "Toby Dylan Hocking, Ph.D.
+http://tdhock.github.io
+*** Please understand, to be productive in my teaching and my research,
+I try to check my email no more than once per day. As such, please be
+prepared for a 24 to 48 hour delay in my response. If this matter is
+something that requires immediate attention, please visit/call my office.
+")
+
+;; sending mail -- replace USERNAME with your gmail username
+;; also, make sure the gnutls command line utils are installed
+;; package 'gnutls-bin' in Debian/Ubuntu
+
+(require 'smtpmail)
+(setq message-send-mail-function 'smtpmail-send-it
+   starttls-use-gnutls t
+   smtpmail-starttls-credentials '(("iris.nau.edu" 587 nil nil))
+   smtpmail-auth-credentials
+     '(("iris.nau.edu" 587 "th798@iris.nau.edu" nil))
+   smtpmail-default-smtp-server "iris.nau.edu"
+   smtpmail-smtp-server "iris.nau.edu"
+   smtpmail-smtp-service 587)
+
+;; don't keep message buffers around
+(setq message-kill-buffer-on-exit t)
+(setq mu4e~get-mail-password-regexp "^Enter password for account 'Remote': $")
