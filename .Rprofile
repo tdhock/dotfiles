@@ -273,5 +273,121 @@ if(interactive())suppressMessages({
     dec.mat <- apply(hex.mat, 2, function(x)strtoi(paste0("0x", x)))
     dput(apply(dec.mat, 1, paste, collapse=","))
   }
+
+  ## Run sacct with args and parse output as a data.table
+  sacct <- function(args){
+    library(data.table)
+    cmd <- paste(
+      "sacct",
+      args,
+      "--format=JobID%30,ExitCode,State%30,MaxRSS,Elapsed -P")
+    sacct.dt <- fread(cmd, fill=TRUE, sep="|")
+    ## DerivedExitCode
+    ##        The highest exit code returned by the job's job  steps
+    ##        (srun invocations).  Following the colon is the signal
+    ##        that caused the process to terminate if it was  termi‐
+    ##        nated  by  a signal.  The DerivedExitCode can be modi‐
+    ##        fied by invoking sacctmgr modify job or  the  special‐
+    ##        ized sjobexitmod command.
+    ## ExitCode  The  exit  code  returned by the job script or salloc,
+    ##           typically as set by the  exit()  function.   Following
+    ##           the  colon  is  the  signal that caused the process to
+    ##           terminate if it was terminated by a signal.
+    na.as.zero <- function(int.or.empty){
+      ifelse(int.or.empty=="", 0L, as.integer(int.or.empty))
+    }
+    pattern.list <- list(
+      ExitCode=list(
+        paste0(
+          "(?<before>[0-9]+)",
+          ":",
+          "(?<after>[0-9]+)"),
+        list(before=as.integer, after=as.integer)),
+      Elapsed=list(
+        paste0(
+          "(?:(?<days>[0-9]+)-)?",
+          "(?:(?<hours>[0-9]+):)?",
+          "(?<minutes>[0-9]+)",
+          ":",
+          "(?<seconds>[0-9]+)"),
+        list(
+          days=na.as.zero,
+          hours=na.as.zero,
+          minutes=as.integer,
+          seconds=as.integer)),
+      JobID=list(paste0(
+        "(?<job>[0-9]+)",
+        "_",
+        "(?<task>[0-9]+)",
+        "(?:[.](?<type>.*))?"), list(job=as.integer, task=as.integer)),
+      MaxRSS=list(paste0(
+        "(?<amount>[.0-9]+)",
+        "(?<unit>.*)"), list(amount=as.numeric)))
+    match.dt.list <- list(sacct.dt)
+    for(col.name in names(pattern.list)){
+      col.info <- pattern.list[[col.name]]
+      match.dt.list[[col.name]] <- match.df <- str_match_named(
+                                     sacct.dt[[col.name]],
+                                     col.info[[1]],
+                                     col.info[[2]]
+                                   )
+    }
+    match.dt <- do.call(data.table, match.dt.list)
+    tomega.vec <- c(
+      K=1/1024,
+      M=1)
+    unit.vec <- match.dt[!is.na(MaxRSS.unit), unique(MaxRSS.unit)]
+    bad.unit <- ! unit.vec %in% names(tomega.vec)
+    if(any(bad.unit)){
+      print(unit.vec[bad.unit])
+      stop("unrecognized unit")
+    }
+    match.dt[, MaxRSS.megabytes := MaxRSS.amount*tomega.vec[paste(MaxRSS.unit)] ]
+    match.dt[, type := ifelse(JobID.type=="", "blank", JobID.type)]
+    match.dt[, hours := {
+      Elapsed.days * 24 +
+        Elapsed.hours +
+        Elapsed.minutes/60 +
+        Elapsed.seconds/60/60
+    }]
+    wide.dt <- dcast(
+      match.dt,
+      JobID.job + JobID.task ~ type,
+      value.var=c("State", "ExitCode"))
+    rss.dt <- match.dt[JobID.type=="batch", {
+      list(JobID.job, JobID.task, MaxRSS.megabytes)
+    }][wide.dt, on=list(JobID.job, JobID.task)]
+    time.dt <- match.dt[type=="blank", {
+      list(JobID.job, JobID.task, Elapsed, hours)
+    }][rss.dt, on=list(JobID.job, JobID.task)]
+    time.dt
+  }
+
+  ## Report counts of tasks with State/ExitCode values for a given
+  ## job.id
+  sjob <- function(job.id, tasks.width=11){
+    sacct(paste0("-j", job.id))[, {
+      list(
+        count=.N,
+        tasks={
+          tasks.long <- paste(JobID.task, collapse=",")
+          ifelse(
+            tasks.width < nchar(tasks.long), 
+            sub("[0-9]+$", "", substr(tasks.long, 1, tasks.width-1)),
+            tasks.long)
+        }
+      )
+    }, by=list(
+         State_batch, State_blank, State_extern,
+         ExitCodes=paste(
+           ExitCode_batch,
+           ExitCode_blank,
+           ExitCode_extern))
+    ]
+  }
+
+
+
+  
 })
 
