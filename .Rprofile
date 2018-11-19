@@ -315,11 +315,26 @@ if(interactive())suppressMessages({
           hours=na.as.zero,
           minutes=as.integer,
           seconds=as.integer)),
-      JobID=list(paste0(
+      JobID=list({
+        task.range.pattern <- paste0(
+          "[[]",
+          "(?<task1>[0-9]+)",
+          "(?:-(?<taskN>[0-9]+))?", #end is optional.
+          "[]]")
+        paste0(
         "(?<job>[0-9]+)",
         "_",
+        "(?:",
         "(?<task>[0-9]+)",
-        "(?:[.](?<type>.*))?"), list(job=as.integer, task=as.integer)),
+        "|",
+        task.range.pattern,
+        ")",
+        "(?:[.](?<type>.*))?")
+      }, list(
+           job=as.integer,
+           task=as.integer,
+           task1=as.integer,
+           taskN=as.integer)),
       MaxRSS=list(paste0(
         "(?<amount>[.0-9]+)",
         "(?<unit>.*)"), list(amount=as.numeric)))
@@ -327,63 +342,79 @@ if(interactive())suppressMessages({
     for(col.name in names(pattern.list)){
       col.info <- pattern.list[[col.name]]
       match.dt.list[[col.name]] <- match.df <- str_match_named(
-                                     sacct.dt[[col.name]],
+                                     paste(sacct.dt[[col.name]]),
                                      col.info[[1]],
                                      col.info[[2]]
                                    )
     }
     match.dt <- do.call(data.table, match.dt.list)
+    task.dt <- rbind(
+      match.dt[!is.na(JobID.taskN), {
+        data.table(.SD, task=seq(JobID.task1, JobID.taskN))
+      }, by=list(JobID)],
+      match.dt[is.na(JobID.taskN), {
+        data.table(.SD, task=ifelse(is.na(JobID.task), JobID.task1, JobID.task))
+        }])
     tomega.vec <- c(
       K=1/1024,
       M=1)
-    unit.vec <- match.dt[!is.na(MaxRSS.unit), unique(MaxRSS.unit)]
+    unit.vec <- task.dt[!is.na(MaxRSS.unit), unique(MaxRSS.unit)]
     bad.unit <- ! unit.vec %in% names(tomega.vec)
     if(any(bad.unit)){
       print(unit.vec[bad.unit])
       stop("unrecognized unit")
     }
-    match.dt[, MaxRSS.megabytes := MaxRSS.amount*tomega.vec[paste(MaxRSS.unit)] ]
-    match.dt[, type := ifelse(JobID.type=="", "blank", JobID.type)]
-    match.dt[, hours := {
+    task.dt[, MaxRSS.megabytes := MaxRSS.amount*tomega.vec[paste(MaxRSS.unit)] ]
+    task.dt[, type := ifelse(JobID.type=="", "blank", JobID.type)]
+    task.dt[, hours := {
       Elapsed.days * 24 +
         Elapsed.hours +
         Elapsed.minutes/60 +
         Elapsed.seconds/60/60
     }]
     wide.dt <- dcast(
-      match.dt,
-      JobID.job + JobID.task ~ type,
+      task.dt,
+      JobID.job + task ~ type,
       value.var=c("State", "ExitCode"))
-    rss.dt <- match.dt[JobID.type=="batch", {
-      list(JobID.job, JobID.task, MaxRSS.megabytes)
-    }][wide.dt, on=list(JobID.job, JobID.task)]
-    time.dt <- match.dt[type=="blank", {
-      list(JobID.job, JobID.task, Elapsed, hours)
-    }][rss.dt, on=list(JobID.job, JobID.task)]
+    rss.dt <- task.dt[JobID.type=="batch", {
+      list(JobID.job, task, MaxRSS.megabytes)
+    }][wide.dt, on=list(JobID.job, task)]
+    time.dt <- task.dt[type=="blank", {
+      list(JobID.job, task, Elapsed, hours)
+    }][rss.dt, on=list(JobID.job, task)]
     time.dt
   }
 
   ## Report counts of tasks with State/ExitCode values for a given
   ## job.id
   sjob <- function(job.id, tasks.width=11){
-    sacct(paste0("-j", job.id))[, {
+    time.dt <- sacct(paste0("-j", job.id))
+    suffix.vec <- c("batch", "blank", "extern")
+    col.name.list <- list()
+    for(prefix in c("ExitCode", "State")){
+      possible.vec <- paste0(prefix, "_", suffix.vec)
+      col.name.list[[prefix]] <- possible.vec[possible.vec %in% names(time.dt)]
+    }
+    paste.args <- as.list(time.dt[, col.name.list$ExitCode, with=FALSE])
+    time.dt[, ExitCodes := do.call(paste, paste.args)]
+    by.vars <- c(
+      col.name.list$State,
+      "ExitCodes",
+      if(1 < length(unique(time.dt$JobID.job))){
+        "JobID.job"
+      })
+    time.dt[, {
       list(
         count=.N,
         tasks={
-          tasks.long <- paste(JobID.task, collapse=",")
+          tasks.long <- paste(task, collapse=",")
           ifelse(
             tasks.width < nchar(tasks.long), 
             sub("[0-9]+$", "", substr(tasks.long, 1, tasks.width-1)),
             tasks.long)
         }
       )
-    }, by=list(
-         State_batch, State_blank, State_extern,
-         ExitCodes=paste(
-           ExitCode_batch,
-           ExitCode_blank,
-           ExitCode_extern))
-    ]
+    }, by=by.vars]
   }
 
 
