@@ -387,7 +387,7 @@ if(interactive())suppressMessages({
 
   ## Report counts of tasks with State/ExitCode values for a given
   ## job.id
-  sjob <- function(job.id, tasks.width=11){
+  sjob <- function(job.id=sq.jobs(), tasks.width=11){
     time.dt <- sacct(paste0("-j", job.id))
     suffix.vec <- c("batch", "blank", "extern")
     col.name.list <- list()
@@ -417,8 +417,11 @@ if(interactive())suppressMessages({
     }, by=by.vars]
   }
 
-
-
+  sq.jobs <- function(args="-u $USER"){
+    cmd <- paste('squeue -h', args, '-o "%F"|sort|uniq')
+    jid.vec <- system(cmd, intern=TRUE)
+    paste(jid.vec, collapse=",")
+  }
   
 })
 
