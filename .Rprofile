@@ -348,8 +348,9 @@ if(interactive())suppressMessages({
                                    )
     }
     match.dt <- do.call(data.table, match.dt.list)
+    range.dt <- match.dt[!is.na(JobID.taskN)]
     task.dt <- rbind(
-      match.dt[!is.na(JobID.taskN), {
+      if(nrow(range.dt))range.dt[, {
         data.table(.SD, task=seq(JobID.task1, JobID.taskN))
       }, by=list(JobID)],
       match.dt[is.na(JobID.taskN), {
