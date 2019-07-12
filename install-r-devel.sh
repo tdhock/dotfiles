@@ -77,7 +77,7 @@ tar xf R-devel.tar.gz
 
 ## Build R.
 cd ~/R/R-devel
-CPPFLAGS=-I$HOME/include LDFLAGS="-L$HOME/lib -Wl,-rpath=$HOME/lib" ./configure --prefix=$HOME --with-cairo --with-blas --with-lapack --enable-R-shlib
+CPPFLAGS=-I$HOME/include LDFLAGS="-L$HOME/lib -Wl,-rpath=$HOME/lib" ./configure --prefix=$HOME --with-cairo --with-blas --with-lapack --enable-R-shlib --with-valgrind-instrumentation=1
 make
 
 ## Check if the shared libraries are linking to the correct files
