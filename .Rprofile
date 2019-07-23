@@ -58,43 +58,13 @@ works_with_R <- function(Rvers,...){
 options(repos=c(
           "http://www.bioconductor.org/packages/release/bioc",
           "http://r-forge.r-project.org",
-          "http://probability.ca/cran",
-          "http://cran.r-project.org"))
-
-## Make sure we have a version of RSelenium that works for testing
-## animint.
-requireGitHub::requireGitHub(
-  "ropensci/RSelenium@22f06b9f2a675015d0daa3318319044e4e60d2fa")
-bin.dir <- system.file("bin", package="RSelenium", mustWork=TRUE)
-jar.file <- file.path(bin.dir, "selenium-server-standalone.jar")
-if(!file.exists(jar.file)){
-  download.file("http://selenium-release.storage.googleapis.com/2.47/selenium-server-standalone-2.47.0.jar", jar.file)
-}
+          "http://cloud.r-project.org"))
 
 if(interactive())suppressMessages({
   options(bitmapType="cairo")
   require(grDevices)
   X11.options(type="cairo")
   x11(width=17.5,height=10.2,xpos=-1,ypos=-1)
-  library(lattice)
-  lattice.options(print.function = function(x, ...) {
-    if ( (length(dim(x)) == 2) && require(latticeExtra) ){
-      plot(useOuterStrips(x),...)
-    }else{
-      plot(x, ...)
-    }
-  },default.args={
-    list(as.table=TRUE,
-         strip=strip.custom(strip.names=TRUE),
-         strip.left=strip.custom(strip.names=TRUE))
-  })
-  if(require(RColorBrewer)){
-    require(grDevices)
-    custom.pal <- brewer.pal(9,"Set1")
-    custom.pal[6] <- "#DDDD33"
-    trellis.par.set(theme=simpleTheme(col=custom.pal))
-    ##show.settings()
-  }
 
   ## Use the *nix wc program to quickly determine the number of lines
   ## of a file (and print the first few lines).
@@ -120,16 +90,6 @@ if(interactive())suppressMessages({
     ps.table <- read.table(text=ps.lines, header=TRUE)
     ps.table$megabytes <- ps.table$RSS/1024
     ps.table
-  }
-
-  ## convert an author list string from an automatically formatted
-  ## bibtex entry (Hocking, Toby Dylan and Rigaill, Guillem) to a
-  ## human readable abbreviated list (Hocking TD, Rigaill G).
-  bibAuthors2text <- function(authors.str){
-    authors.vec <- strsplit(authors.str, " and ")[[1]]
-    authors.mat <- namedCapture::str_match_named(authors.vec, "(?<last>[^,]+), (?<first>[^ ]+)(?: (?<rest>.*))?")
-    abbrev.vec <- data.table(authors.mat)[, paste0(last, " ", substr(first, 1, 1), substr(rest, 1, 1))]
-    paste(abbrev.vec, collapse=", ")
   }
 
   hms <- function(seconds){
@@ -201,33 +161,59 @@ if(interactive())suppressMessages({
   }
 
   if(require(namedCapture)){
+
+    ## convert an author list string from an automatically formatted
+    ## bibtex entry (Hocking, Toby Dylan and Rigaill, Guillem) to a
+    ## human readable abbreviated list (Hocking TD, Rigaill G).
+    bibAuthors2text <- function(authors.str){
+      authors.vec <- strsplit(authors.str, " and ")[[1]]
+      authors.mat <- namedCapture::str_match_variable(
+        authors.vec,
+        last="[^,]+",
+        ", ",
+        first="[^ ]+",
+        list(
+          " ",
+          rest=".*"
+        ), "?")
+      abbrev.vec <- data.table(authors.mat)[, paste0(
+        last,
+        " ",
+        substr(first, 1, 1),
+        substr(rest, 1, 1)
+      )]
+      paste(abbrev.vec, collapse=", ")
+    }
+
     vmstat <- function(){
       vmstat.pattern <-
-        paste0(" *",
-               "(?<value>[0-9]+)",
-               " ",
-               "(?<name>.*)")
       vmstat.lines <- system("vmstat -s", intern=TRUE)
-      vmstat.df <- str_match_named(vmstat.lines, vmstat.pattern, list(value=as.numeric))
+      vmstat.df <- namedCapture::str_match_variable(
+        vmstat.lines,
+        " *",
+        value="[0-9]+", as.numeric,
+        " ",
+        name=".*")
       vmstat.df$megabytes <- as.integer(vmstat.df$value/1024)
       vmstat.df
     }
+    
     ## Take a character vector of chromosomes such as chr1, chr2,
     ## chr10, chr20, chrX, chrY, chr17, chr17_ctg5_hap1 and assign
     ## each a number that sorts them first numerically if it exists,
     ## then using the _suffix, then alphabetically.
     orderChrom <- function(chrom.vec, ...){
       stopifnot(is.character(chrom.vec))
-      chr.pattern <- paste0(
-        "chr",
-        "(?<name_or_number>[^:_]+)",
-        "(?<extra_name>_[^:]*)?",
-        ":?",
-        "(?<chromStart>[^-]*)?",
-        "-?",
-        "(?<chromEnd>[^-]*)?")
       value.vec <- unique(chrom.vec)
-      chr.mat <- str_match_named(value.vec, chr.pattern)
+      chr.mat <- namedCapture::str_match_variable(
+        value.vec,
+        "chr",
+        name_or_number="[^:_]+",
+        extra_name="_[^:]*", "?",
+        ":?",
+        chromStart="[^-]*", "?",
+        "-?",
+        chromEnd="[^-]*", "?") 
       did.not.match <- is.na(chr.mat[, 1])
       if(any(did.not.match)){
         print(value.vec[did.not.match])
@@ -241,7 +227,8 @@ if(interactive())suppressMessages({
       rank.vec <- seq_along(value.vec)
       names(rank.vec) <- value.vec[ord.vec]
       order(rank.vec[chrom.vec], ...)
-    } 
+    }
+    
     test.input <- data.frame(
       chrom=c("chr1", "chr1", "chr10", "chr2", "chrY", "chrX", "chr17_ctg5_hap1", "chr21", "chr17"),
       pos = c(     2,      1,      0,       0,      0,      0,       0,      0,           0))
@@ -253,25 +240,26 @@ if(interactive())suppressMessages({
     stopifnot(identical(
       test.output$pos,
       c(1, 2, 0, 0, 0, 0, 0, 0, 0)))
+    
     factorChrom <- function(chrom.vec){
       u.vec <- unique(chrom.vec)
       ord.vec <- u.vec[orderChrom(u.vec)]
       factor(chrom.vec, ord.vec)
     }
     ## Converting color hex strings to matrices in R.
-    ann.colors <-
-      c(noPeaks="#f6f4bf",
-        peakStart="#ffafaf",
-        peakEnd="#ff4c4c",
-        peaks="#a445ee")
-    hex.color.pattern <-
-      paste0("#?",
-             "(?<red>[0-9a-fA-F]{2})",
-             "(?<green>[0-9a-fA-F]{2})",
-             "(?<blue>[0-9a-fA-F]{2})")
-    hex.mat <- str_match_named(ann.colors, hex.color.pattern)
+    ann.colors <- c(
+      noPeaks="#f6f4bf",
+      peakStart="#ffafaf",
+      peakEnd="#ff4c4c",
+      peaks="#a445ee")
+    hex.mat <- namedCapture::str_match_variable(
+      ann.colors,
+      "#?",
+      red="[0-9a-fA-F]{2}",
+      green="[0-9a-fA-F]{2}",
+      blue="[0-9a-fA-F]{2}")
     dec.mat <- apply(hex.mat, 2, function(x)strtoi(paste0("0x", x)))
-    dput(apply(dec.mat, 1, paste, collapse=","))
+    
   }
 
 })
