@@ -160,7 +160,7 @@ if(interactive())suppressMessages({
     }
   }
 
-  if(require(namedCapture)){
+  if(requireNamespace("namedCapture")){
 
     ## convert an author list string from an automatically formatted
     ## bibtex entry (Hocking, Toby Dylan and Rigaill, Guillem) to a
