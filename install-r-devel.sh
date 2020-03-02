@@ -49,8 +49,8 @@ make install
 sudo ldconfig $HOME/lib
 ## Otherwise, if we don't have sudo, try setting LD_LIBRARY_PATH.
 
-## bz2, lzma development libraries now required.
-sudo aptitude install libbz2-dev liblzma-dev zlib1g-dev libcurl4-gnutls-dev
+## development libraries for compression, curl, fortran 
+sudo aptitude install libbz2-dev liblzma-dev zlib1g-dev libcurl4-gnutls-dev libgfortran5
 
 ##PCRE
 cd ~/R
