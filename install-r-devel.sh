@@ -52,6 +52,7 @@ sudo ldconfig $HOME/lib
 ## bz2, lzma development libraries now required. Also install other
 ## prereq's for compiling R+packages.
 sudo aptitude install \
+     fortran5 \
      r-recommended libtiff-dev libcairo-dev \ #main R
      default-jre default-jdk \ #for java
      libbz2-dev liblzma-dev zlib1g-dev libcurl4-gnutls-dev xorg-dev \ #r
