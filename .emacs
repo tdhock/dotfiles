@@ -31,19 +31,14 @@
 ;; Most important ESS options.
 (setq ess-eval-visibly-p nil)
 (setq ess-ask-for-ess-directory nil)
-(require 'ess-eldoc "ess-eldoc" t)
 (setq ess-eldoc-show-on-symbol t)
+(setq ess-default-style 'RStudio)
+(with-eval-after-load "ess-r-mode" 
+  (define-key ess-r-mode-map ";" #'ess-insert-assign)
+  (define-key inferior-ess-r-mode-map ";" #'ess-insert-assign)
+  )
+(setq tab-always-indent 'complete)
 
-;; ggplot indentation https://github.com/emacs-ess/ESS/issues/120
-(load "ess-site.el")
-(add-to-list 'ess-style-alist
- '(tdh-style
-   (ess-indent-offset . 2)
-   (ess-offset-continued . straight)
-   (ess-offset-arguments-newline . prev-line)
-   (ess-indent-with-fancy-comments . t)
-)
-(setq ess-default-style 'tdh-style)
 ;; from http://ygc.name/2014/12/07/auto-complete-in-ess/
 (add-to-list 'load-path "~/auto-complete-1.3.1")
 (setq ess-use-auto-complete t)
@@ -57,7 +52,6 @@
 (setq ac-quick-help-delay 2)
 (define-key ac-mode-map [C-tab] 'auto-complete);C-tab auto-complete
 (setq ess-describe-at-point-method 'tooltip);C-c C-d C-e C-e help window
-
 
 ;; Emacs stuff.
 (global-set-key "\M-s" 'isearch-forward-regexp)
