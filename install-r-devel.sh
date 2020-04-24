@@ -53,6 +53,7 @@ sudo ldconfig $HOME/lib
 ## prereq's for compiling R+packages.
 sudo aptitude install \
      fortran5 \
+     libpcre2-dev \
      r-recommended libtiff-dev libcairo-dev \ #main R
      default-jre default-jdk \ #for java
      libbz2-dev liblzma-dev zlib1g-dev libcurl4-gnutls-dev xorg-dev \ #r
@@ -62,7 +63,7 @@ sudo aptitude install \
      r-cran-rgl \ #for 3dviz
      tcl-dev tk-dev #for library(tcltk), library(loon)
 
-##PCRE
+##old PCRE for R<4
 cd ~/R
 wget ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.41.tar.bz2
 tar xf pcre-8.41.tar.bz2
@@ -72,6 +73,8 @@ cd pcre-8.41
 ./configure --enable-utf8 --prefix=$HOME 
 make 
 make install
+
+##TODO how to compile pcre2?
 
 ## Download R-devel source code to ~/R/R-devel
 cd ~/R
