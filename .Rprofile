@@ -264,3 +264,19 @@ if(interactive())suppressMessages({
 
 })
 
+## CRAN says that Suggests packages should be used conditionally, so
+## the package should pass checks without them.
+check_without_suggests <- function(pkg.path){
+  Suggests.vec <- remotes::local_package_deps(pkg.path, "Suggests")
+  lib <- .libPaths()[1]##assumes Suggests packages are in this first lib.
+  tmp.lib <- tempdir()
+  old.paths <- file.path(lib, Suggests.vec)
+  tmp.paths <- file.path(tmp.lib, Suggests.vec)
+  file.rename(old.paths, tmp.paths)
+  on.exit({
+    file.rename(tmp.paths, old.paths)
+  })
+  ## ignore vignettes because re-building them may require Suggests
+  ## packages e.g. knitr.
+  devtools::check_built(pkg.path, args="--ignore-vignettes")
+}
