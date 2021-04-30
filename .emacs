@@ -1,6 +1,10 @@
 ;; font size in units of 1/10 point.
 (set-face-attribute 'default nil :height 110)
 
+;; set frame startup size in number of characters
+(setq initial-frame-alist
+      '((top . 1) (left . 1) (width . 80) (height . 30)))
+
 ;; arduino-mode
 ;; sudo aptitude install arduino arduino-mk (installs a perl command line prog)
 ;; git clone git://github.com/bookest/arduino-mode.git
@@ -33,9 +37,9 @@
 (setq ess-ask-for-ess-directory nil)
 (setq ess-eldoc-show-on-symbol t)
 (setq ess-default-style 'RStudio)
-(with-eval-after-load "ess-r-mode" 
-  (define-key ess-r-mode-map ";" #'ess-insert-assign)
-  (define-key inferior-ess-r-mode-map ";" #'ess-insert-assign)
+(with-eval-after-load "ess-mode" 
+  (define-key ess-mode-map ";" #'ess-insert-assign)
+  (define-key inferior-ess-mode-map ";" #'ess-insert-assign)
   )
 (setq tab-always-indent 'complete)
 
