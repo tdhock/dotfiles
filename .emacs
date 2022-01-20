@@ -15,35 +15,24 @@
 ;; for other projects.
 	    (set (make-local-variable 'compile-command) "make upload")))
 
-;;ess-mode NOTE: if site-wide file is present, it is read first, and
-;;if it loads ess, then the following code will not do anything!
-;;Furthermore, if we need to load user-specific ESS, then we need to
-;;start emacs with --no-site-file or (unload-feature ...) here
-(autoload 'R "ess-site.el" "ESS" t)
-(autoload 'R-mode "ess-site.el" "ESS" t)
-(autoload 'r-mode "ess-site.el" "ESS" t)
-(autoload 'Rd-mode "ess-site.el" "ESS" t)
-(autoload 'Rnw-mode "ess-site.el" "ESS" t)
-(add-to-list 'auto-mode-alist '("\\.R$" . R-mode))
-(add-to-list 'auto-mode-alist '("\\.r$" . R-mode))
-(add-to-list 'auto-mode-alist '("\\.Rd$" . Rd-mode))
-(add-to-list 'auto-mode-alist '("\\.Rnw$" . Rnw-mode))
+;; Need to set style before loading ess.
+(setq ess-default-style 'RStudio)
+(load "ess-site.el")
+(define-key ess-r-mode-map "_" #'ess-insert-assign)
+(define-key inferior-ess-r-mode-map "_" #'ess-insert-assign)
+
 ;; Most important ESS options.
 (setq ess-eval-visibly-p nil)
 (setq ess-ask-for-ess-directory nil)
 (require 'ess-eldoc "ess-eldoc" t)
 (setq ess-eldoc-show-on-symbol t)
 
-;; ggplot indentation https://github.com/emacs-ess/ESS/issues/120
-(load "ess-site.el")
-(add-to-list 'ess-style-alist
- '(tdh-style
-   (ess-indent-offset . 2)
-   (ess-offset-continued . straight)
-   (ess-offset-arguments-newline . prev-line)
-   (ess-indent-with-fancy-comments . t)
-)
-(setq ess-default-style 'tdh-style)
+
+;; turn off pkg mode (eval bug TDH 16 Jan 2019)
+(setq ess-r-package-auto-activate nil)
+(setq ess-r-package-auto-set-evaluation-env nil)
+
+
 ;; from http://ygc.name/2014/12/07/auto-complete-in-ess/
 (add-to-list 'load-path "~/auto-complete-1.3.1")
 (setq ess-use-auto-complete t)
@@ -86,8 +75,11 @@
   ;;(shell-quote-argument "some file with spaces")
   (shell-command
    (concat "evince " (file-name-sans-extension (buffer-file-name)) ".pdf &"))
-)
+  )
+;; for compiling R packages.
 (global-set-key [f9] 'compile)
+(add-to-list 'safe-local-variable-values '(compile-command . "R -e \"Rcpp::compileAttributes('..')\" && R CMD INSTALL .. && R --vanilla < ../tests/testthat/test-CRAN.R"))
+(add-to-list 'safe-local-variable-values '(compile-command . "R -e \"devtools::test()\""))
 (global-set-key [f10] 'evince-pdf)
 
 ;;c-mode.
