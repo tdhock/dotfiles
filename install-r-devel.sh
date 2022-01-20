@@ -49,10 +49,21 @@ make install
 sudo ldconfig $HOME/lib
 ## Otherwise, if we don't have sudo, try setting LD_LIBRARY_PATH.
 
-## bz2, lzma development libraries now required.
-sudo aptitude install libbz2-dev liblzma-dev zlib1g-dev libcurl4-gnutls-dev
+## bz2, lzma development libraries now required. Also install other
+## prereq's for compiling R+packages.
+sudo aptitude install \
+     fortran5 \
+     libpcre2-dev \
+     r-recommended libtiff-dev libcairo-dev \ #main R
+     default-jre default-jdk \ #for java
+     libbz2-dev liblzma-dev zlib1g-dev libcurl4-gnutls-dev xorg-dev \ #r
+     texlive ghostscript texlive-fonts-extra texinfo \ #r manuals
+     libxml2-dev libssl-dev \ #some packages
+     texlive-science \ #for algorithm.sty
+     r-cran-rgl \ #for 3dviz
+     tcl-dev tk-dev #for library(tcltk), library(loon)
 
-##PCRE
+##old PCRE for R<4
 cd ~/R
 wget ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.41.tar.bz2
 tar xf pcre-8.41.tar.bz2
@@ -62,6 +73,8 @@ cd pcre-8.41
 ./configure --enable-utf8 --prefix=$HOME 
 make 
 make install
+
+##TODO how to compile pcre2?
 
 ## Download R-devel source code to ~/R/R-devel
 cd ~/R
@@ -75,9 +88,24 @@ if [ -d R-devel ];then
 fi
 tar xf R-devel.tar.gz
 
+## valgrind instrumentation info from Writing R Extensions: The
+## configure option is --with-valgrind-instrumentation=level, where
+## level is 0, 1 or 2.
+
+## Level 0 is the default and does not add anything.
+
+## Level 1 will detect some uses (Those in some numeric, logical,
+## integer, raw, complex vectors and in memory allocated by R_alloc)
+## of uninitialised memory and has little impact on speed (compared to
+## level 0).
+
+## Level 2 will detect many other memory-use bugs (including using the
+## data sections of R vectors after they are freed) but make R much
+## slower when running under valgrind.
+
 ## Build R.
 cd ~/R/R-devel
-CPPFLAGS=-I$HOME/include LDFLAGS="-L$HOME/lib -Wl,-rpath=$HOME/lib" ./configure --prefix=$HOME --with-cairo --with-blas --with-lapack --enable-R-shlib --with-valgrind-instrumentation=1
+CPPFLAGS=-I$HOME/include LDFLAGS="-L$HOME/lib -Wl,-rpath=$HOME/lib" ./configure --prefix=$HOME --with-cairo --with-blas --with-lapack --enable-R-shlib --with-valgrind-instrumentation=2 --enable-memory-profiling
 make
 
 ## Check if the shared libraries are linking to the correct files

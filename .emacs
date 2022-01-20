@@ -1,6 +1,10 @@
 ;; font size in units of 1/10 point.
 (set-face-attribute 'default nil :height 110)
 
+;; set frame startup size in number of characters
+(setq initial-frame-alist
+      '((top . 1) (left . 1) (width . 80) (height . 30)))
+
 ;; arduino-mode
 ;; sudo aptitude install arduino arduino-mk (installs a perl command line prog)
 ;; git clone git://github.com/bookest/arduino-mode.git
@@ -24,14 +28,17 @@
 ;; Most important ESS options.
 (setq ess-eval-visibly-p nil)
 (setq ess-ask-for-ess-directory nil)
-(require 'ess-eldoc "ess-eldoc" t)
 (setq ess-eldoc-show-on-symbol t)
-
+(setq ess-default-style 'RStudio)
+(with-eval-after-load "ess-mode" 
+  (define-key ess-mode-map ";" #'ess-insert-assign)
+  (define-key inferior-ess-mode-map ";" #'ess-insert-assign)
+  )
+(setq tab-always-indent 'complete)
 
 ;; turn off pkg mode (eval bug TDH 16 Jan 2019)
 (setq ess-r-package-auto-activate nil)
 (setq ess-r-package-auto-set-evaluation-env nil)
-
 
 ;; from http://ygc.name/2014/12/07/auto-complete-in-ess/
 (add-to-list 'load-path "~/auto-complete-1.3.1")
@@ -46,7 +53,6 @@
 (setq ac-quick-help-delay 2)
 (define-key ac-mode-map [C-tab] 'auto-complete);C-tab auto-complete
 (setq ess-describe-at-point-method 'tooltip);C-c C-d C-e C-e help window
-
 
 ;; Emacs stuff.
 (global-set-key "\M-s" 'isearch-forward-regexp)
