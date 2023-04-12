@@ -22,8 +22,6 @@
 ;; Need to set style before loading ess.
 (setq ess-default-style 'RStudio)
 (load "ess-site.el")
-(define-key ess-r-mode-map "_" #'ess-insert-assign)
-(define-key inferior-ess-r-mode-map "_" #'ess-insert-assign)
 
 ;; Most important ESS options.
 (setq ess-eval-visibly-p nil)
