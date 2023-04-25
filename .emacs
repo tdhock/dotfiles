@@ -22,14 +22,13 @@
 ;; Need to set style before loading ess.
 (setq ess-default-style 'RStudio)
 (load "ess-site.el")
-(define-key ess-r-mode-map "_" #'ess-insert-assign)
-(define-key inferior-ess-r-mode-map "_" #'ess-insert-assign)
 
 ;; Most important ESS options.
 (setq ess-eval-visibly-p nil)
 (setq ess-ask-for-ess-directory nil)
 (setq ess-eldoc-show-on-symbol t)
 (setq ess-default-style 'RStudio)
+(setq ess-startup-directory 'default-directory);;https://github.com/emacs-ess/ESS/issues/1187#issuecomment-1038360149
 (with-eval-after-load "ess-mode" 
   (define-key ess-mode-map ";" #'ess-insert-assign)
   (define-key inferior-ess-mode-map ";" #'ess-insert-assign)
