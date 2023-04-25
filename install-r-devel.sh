@@ -82,7 +82,8 @@ if [ -f R-devel.tar.gz ];then
     rm R-devel.tar.gz
 fi
 # old ftp://ftp.stat.math.ethz.ch/Software/R/R-devel.tar.gz
-wget ftp://ftp.stat.math.ethz.ch/CRAN/src/base/R-3/R-3.4.1.tar.gz
+##wget ftp://ftp.stat.math.ethz.ch/CRAN/src/base/R-3/R-3.4.1.tar.gz
+wget https://cloud.r-project.org/src/base/R-4/R-4.3.0.tar.gz
 if [ -d R-devel ];then
     rm -r R-devel
 fi
