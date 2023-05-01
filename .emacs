@@ -5,20 +5,6 @@
 (setq initial-frame-alist
       '((top . 1) (left . 1) (width . 80) (height . 30)))
 
-;; arduino-mode
-;; sudo aptitude install arduino arduino-mk (installs a perl command line prog)
-;; git clone git://github.com/bookest/arduino-mode.git
-(add-to-list 'load-path "~/arduino-mode")
-(add-to-list 'auto-mode-alist '("\\.\\(pde\\|ino\\)$" . arduino-mode))
-(autoload 'arduino-mode "arduino-mode.el" "Arduino editing mode" t)
-;; git clone git://github.com/sudar/Arduino-Makefile
-;; put "include ~/Arduino-Makefile/Arduino.mk" in Makefile.
-(add-hook 'arduino-mode-hook 
-	  (lambda ()
-;; make compile-command buffer-local so that "make upload" is not used
-;; for other projects.
-	    (set (make-local-variable 'compile-command) "make upload")))
-
 ;; Need to set style before loading ess.
 (setq ess-default-style 'RStudio)
 (load "ess-site.el")
@@ -35,24 +21,6 @@
   )
 (setq tab-always-indent 'complete)
 
-;; turn off pkg mode (eval bug TDH 16 Jan 2019)
-(setq ess-r-package-auto-activate nil)
-(setq ess-r-package-auto-set-evaluation-env nil)
-
-;; from http://ygc.name/2014/12/07/auto-complete-in-ess/
-(add-to-list 'load-path "~/auto-complete-1.3.1")
-(setq ess-use-auto-complete t)
-(require 'auto-complete)
-(require 'auto-complete-config)
-(add-to-list 'ac-dictionary-directories "~/auto-complete-1.3.1/dict")
-(ac-config-default)
-(auto-complete-mode)
-(setq ac-auto-start nil)
-;(setq ac-auto-start 5)
-(setq ac-quick-help-delay 2)
-(define-key ac-mode-map [C-tab] 'auto-complete);C-tab auto-complete
-(setq ess-describe-at-point-method 'tooltip);C-c C-d C-e C-e help window
-
 ;; Emacs stuff.
 (global-set-key "\M-s" 'isearch-forward-regexp)
 (global-set-key "\M-r" 'isearch-backward-regexp)
@@ -64,7 +32,6 @@
 
 ;; Org.
 (setq org-src-fontify-natively t)
-(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
 
 ;; JavaScript
 (setq js-indent-level 2)
@@ -93,9 +60,6 @@
 	  (lambda () 
 	    (c-set-style "bsd")
 	    (setq c-basic-offset 4)))
-
-;; Edit pt templates in HTML-mode.
-(add-to-list 'auto-mode-alist '("\\.pt$" . html-mode))
 
 ;; TeX
 (setq TeX-PDF-mode t)
