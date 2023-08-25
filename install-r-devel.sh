@@ -103,6 +103,8 @@ tar xf R-devel.tar.gz
 ## data sections of R vectors after they are freed) but make R much
 ## slower when running under valgrind.
 
+sudo apt install valgrind #not snap!!! it does not have headers.
+
 ## Build R.
 cd ~/R/R-devel
 CPPFLAGS=-I$HOME/include LDFLAGS="-L$HOME/lib -Wl,-rpath=$HOME/lib" ./configure --prefix=$HOME --with-cairo --with-blas --with-lapack --enable-R-shlib --with-valgrind-instrumentation=2 --enable-memory-profiling
