@@ -81,9 +81,8 @@ cd ~/R
 if [ -f R-devel.tar.gz ];then 
     rm R-devel.tar.gz
 fi
-# old ftp://ftp.stat.math.ethz.ch/Software/R/R-devel.tar.gz
-##wget ftp://ftp.stat.math.ethz.ch/CRAN/src/base/R-3/R-3.4.1.tar.gz
-wget https://cloud.r-project.org/src/base/R-4/R-4.3.0.tar.gz
+##wget https://cloud.r-project.org/src/base-prerelease/R-devel.tar.gz
+wget https://cloud.r-project.org/src/base/R-4/R-4.3.1.tar.gz
 if [ -d R-devel ];then
     rm -r R-devel
 fi
@@ -107,6 +106,7 @@ tar xf R-devel.tar.gz
 ## Build R.
 cd ~/R/R-devel
 CPPFLAGS=-I$HOME/include LDFLAGS="-L$HOME/lib -Wl,-rpath=$HOME/lib" ./configure --prefix=$HOME --with-cairo --with-blas --with-lapack --enable-R-shlib --with-valgrind-instrumentation=2 --enable-memory-profiling
+CFLAGS=-march=core2 CPPFLAGS=-march=core2 ./configure --prefix=$HOME --with-cairo --with-blas --with-lapack --enable-R-shlib --with-valgrind-instrumentation=2 --enable-memory-profiling
 make
 
 ## Check if the shared libraries are linking to the correct files
