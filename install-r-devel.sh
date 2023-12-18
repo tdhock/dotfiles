@@ -107,8 +107,12 @@ sudo apt install valgrind #not snap!!! it does not have headers.
 
 ## Build R.
 cd ~/R/R-devel
+# below for non-standard C library installation.
 CPPFLAGS=-I$HOME/include LDFLAGS="-L$HOME/lib -Wl,-rpath=$HOME/lib" ./configure --prefix=$HOME --with-cairo --with-blas --with-lapack --enable-R-shlib --with-valgrind-instrumentation=2 --enable-memory-profiling
+# below for old mac CPU.
 CFLAGS=-march=core2 CPPFLAGS=-march=core2 ./configure --prefix=$HOME --with-cairo --with-blas --with-lapack --enable-R-shlib --with-valgrind-instrumentation=2 --enable-memory-profiling
+# below for both.
+CFLAGS=-march=core2 CPPFLAGS="-I$HOME/include -march=core2" LDFLAGS="-L$HOME/lib -Wl,-rpath=$HOME/lib" ./configure --prefix=$HOME --with-cairo --with-blas --with-lapack --enable-R-shlib --with-valgrind-instrumentation=2 --enable-memory-profiling
 make
 
 ## Check if the shared libraries are linking to the correct files
