@@ -130,3 +130,20 @@ ldd internet.so | grep libcurl
 ## R code).
 
 ## If libcurl works in R you should be able to do .Internal(curlDownload("https://www.bioconductor.org/packages/3.0/bioc/src/contrib/PACKAGES", "PACKAGES", FALSE, "w", TRUE))
+
+## gcc-ASAN, gcc-UBSAN: from https://www.stats.ox.ac.uk/pub/bdr/memtests/README.txt
+## gcc 13.2 with config.site:
+CC=gcc CXX="g++ -fsanitize=address,undefined,bounds-strict -fno-omit-frame-pointer" CFLAGS="-g -O2 -Wall -pedantic -mtune=native -fsanitize=address -Wp,-D_FORTIFY_SOURCE=3" FC=gfortran FFLAGS="-g -O2 -mtune=native" CXXFLAGS="-g -O2 -Wall -pedantic -mtune=native" MAIN_LDFLAGS="-fsanitize=address,undefined -pthread" ./configure --prefix=$HOME --with-cairo --with-blas --with-lapack --enable-R-shlib --with-valgrind-instrumentation=2 --enable-memory-profiling
+
+##~/.R/Makevars:
+CC = gcc-13 -std=gnu99 -fsanitize=address,undefined -fno-omit-frame-pointer
+FC = gfortran-13 -fsanitize=address
+
+##and environment variables
+setenv ASAN_OPTIONS 'detect_leaks=0'
+[RcppParallel is run adding detect_odr_violation=0]
+setenv UBSAN_OPTIONS 'print_stacktrace=1'
+setenv RJAVA_JVM_STACK_WORKAROUND 0
+setenv RGL_USE_NULL true
+setenv R_DONT_USE_TK true
+
