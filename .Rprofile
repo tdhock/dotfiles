@@ -59,7 +59,7 @@ options(repos=c(
           "http://www.bioconductor.org/packages/release/bioc",
           "http://r-forge.r-project.org",
           "http://cloud.r-project.org"))
-
+options(help_type = "text")
 if(interactive())suppressMessages({
   options(bitmapType="cairo")
   require(grDevices)
