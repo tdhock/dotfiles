@@ -52,7 +52,7 @@ sudo ldconfig $HOME/lib
 ## bz2, lzma development libraries now required. Also install other
 ## prereq's for compiling R+packages.
 sudo aptitude install \
-     fortran5 \
+     gfortran fortran5 \
      libpcre2-dev \
      r-recommended libtiff-dev libcairo-dev \ #main R
      default-jre default-jdk \ #for java
@@ -61,6 +61,8 @@ sudo aptitude install \
      libxml2-dev libssl-dev \ #some packages
      texlive-science \ #for algorithm.sty
      r-cran-rgl \ #for 3dviz
+     libreadline-dev \
+     valgrind \ #not snap!!! it does not have headers.
      tcl-dev tk-dev #for library(tcltk), library(loon)
 
 ##old PCRE for R<4
@@ -103,10 +105,10 @@ tar xf R-devel.tar.gz
 ## data sections of R vectors after they are freed) but make R much
 ## slower when running under valgrind.
 
-sudo apt install valgrind #not snap!!! it does not have headers.
-
 ## Build R.
 cd ~/R/R-devel
+## standard
+./configure --prefix=$HOME --with-cairo --with-blas --with-lapack --enable-R-shlib --with-valgrind-instrumentation=2 --enable-memory-profiling
 # below for non-standard C library installation.
 CPPFLAGS=-I$HOME/include LDFLAGS="-L$HOME/lib -Wl,-rpath=$HOME/lib" ./configure --prefix=$HOME --with-cairo --with-blas --with-lapack --enable-R-shlib --with-valgrind-instrumentation=2 --enable-memory-profiling
 # below for old mac CPU.
