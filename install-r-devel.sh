@@ -15,13 +15,14 @@ cd zlib-1.2.8
 make
 make install
 
-## same for curl-dev: libcurl4-gnutls-dev 7.22.0 but R needs libcurl
-## version >= 7.28.0.
+## curl-dev: libcurl4-gnutls-dev 7.22.0 but R<=4.2 needs libcurl
+## major version 7, >= 7.28.0.
+## Ubuntu 24.04 gives compilation error for curl-7.46.0 (bad openssl version)
 cd ~/R
-wget http://curl.haxx.se/download/curl-7.46.0.tar.gz
-tar xf curl-7.46.0.tar.gz
-cd curl-7.46.0
-./configure --prefix=$HOME
+wget http://curl.haxx.se/download/curl-7.88.1.tar.gz
+tar xf curl-7.88.1.tar.gz
+cd curl-7.88.1
+./configure --with-openssl --prefix=$HOME
 make
 make install
 
