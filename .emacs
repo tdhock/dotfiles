@@ -188,3 +188,8 @@ something that requires immediate attention, please visit/call my office.
 ;; don't keep message buffers around
 (setq message-kill-buffer-on-exit t)
 (setq mu4e~get-mail-password-regexp "^Enter password for account 'Remote': $")
+
+;; ESS on windows https://emacs.stackexchange.com/questions/74982/emacs-encoding-issues-windows-11
+(setq-default buffer-file-coding-system 'utf-8)
+(setq-default coding-system-for-read 'utf-8)
+(prefer-coding-system 'utf-8)

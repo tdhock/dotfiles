@@ -280,3 +280,4 @@ check_without_suggests <- function(pkg.path){
   ## packages e.g. knitr.
   devtools::check_built(pkg.path, args="--ignore-vignettes")
 }
+
