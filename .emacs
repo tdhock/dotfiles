@@ -69,7 +69,14 @@
 (setq TeX-auto-save t)
 (setq TeX-parse-self t)
 
-;; Open a browser to translate a word.
+;; Open dictionaries in browser.
+(defun larousse ()
+  "Lookup the word at point using Larousse."
+  (interactive)
+  (browse-url (concat "https://www.larousse.fr/dictionnaires/francais/"
+		      (thing-at-point 'word)))
+)
+(global-set-key "\C-x\C-y" 'larousse)
 (defun translate ()
   "Translate the word at point using WordReference."
   (interactive)
