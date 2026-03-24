@@ -37,10 +37,8 @@
 ;; JavaScript
 (setq js-indent-level 2)
 
-;; Compile with F9, view PDF with F10.
-(setq compilation-scroll-output t)
-(setq compile-command "make ")
-(setq compilation-read-command nil)
+;; view PDF with F10.
+(global-set-key [f10] 'evince-pdf)
 (defun evince-pdf ()
   "homebrew view pdf, convenient from latex"
   (interactive)
@@ -49,11 +47,28 @@
   (shell-command
    (concat "evince " (file-name-sans-extension (buffer-file-name)) ".pdf &"))
   )
-;; for compiling R packages.
+;; Compile with F9
+(setq compilation-scroll-output t)
+(setq compilation-auto-jump-to-first-error t)
+(setq compile-command "make ")
+(setq compilation-read-command nil)
 (global-set-key [f9] 'compile)
+;; for compiling R packages.
 (add-to-list 'safe-local-variable-values '(compile-command . "R -e \"Rcpp::compileAttributes('..')\" && R CMD INSTALL .. && R --vanilla < ../tests/testthat/test-CRAN.R"))
 (add-to-list 'safe-local-variable-values '(compile-command . "R -e \"devtools::test()\""))
-(global-set-key [f10] 'evince-pdf)
+(add-to-list 'safe-local-variable-values '(compile-command . "cd .. && make"))
+;; for gcc error messages when compiling C++ code in a python package via pip.
+(add-to-list 'compilation-error-regexp-alist 'gnu-in-pip)
+(add-to-list 'compilation-error-regexp-alist-alist '(gnu-in-pip "^ *\\(?:[[:alpha:]][.[:alnum:]-]+: ?\\| +|\\)?\\(?1:\\(?:[^	
+ 0-9]\\|[0-9]+[^
+0-9]\\)\\(?:[^
+ :]\\| [^
+/-]\\|:[^
+ ]\\)*?\\): ?\\(?2:[0-9]+\\)\\(?:-\\(?4:[0-9]+\\)\\(?:\\.\\(?5:[0-9]+\\)\\)?\\|[.:]\\(?3:[0-9]+\\)\\(?:-\\(?:\\(?4:[0-9]+\\)\\.\\)?\\(?5:[0-9]+\\)\\)?\\)?:\\(?: *\\(?6:\\(?:FutureWarning\\|RuntimeWarning\\|W\\(?::\\|arning\\)\\|warning\\)\\)\\| *\\(?7:\\(?:I\\(?::\\|nfo\\(?:rmation\\(?:al\\)?\\)?\\)\\|Note\\|in\\(?:fo\\(?:rmation\\(?:al\\)?\\)?\\|stantiated from\\)\\|note\\|required from\\)\\|\\[ skipping .+ ]\\)\\| *\\(?:[Ee]rror\\)\\|[0-9]?\\(?:[^
+0-9]\\|$\\)\\|[0-9][0-9][0-9]\\)" 1
+(2 . 4)
+(3 . 5)
+(6 . 7)))
 
 ;;c-mode.
 (setq c-auto-newline nil)
