@@ -58,8 +58,9 @@
 (add-to-list 'safe-local-variable-values '(compile-command . "R -e \"devtools::test()\""))
 (add-to-list 'safe-local-variable-values '(compile-command . "cd .. && make"))
 ;; for gcc error messages when compiling C++ code in a python package via pip.
+(require 'compile)
 (add-to-list 'compilation-error-regexp-alist 'gnu-in-pip)
-(add-to-list 'compilation-error-regexp-alist-alist '(gnu-in-pip "^ *\\(?:[[:alpha:]][.[:alnum:]-]+: ?\\| +|\\)?\\(?1:\\(?:[^	
+(add-to-list 'compilation-error-regexp-alist-alist '(gnu-in-pip "^\\(?:[[:alpha:]][.[:alnum:]-]+: ?\\| +|?\\)?\\(?1:\\(?:[^	
  0-9]\\|[0-9]+[^
 0-9]\\)\\(?:[^
  :]\\| [^
