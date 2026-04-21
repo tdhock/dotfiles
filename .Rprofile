@@ -281,3 +281,9 @@ check_without_suggests <- function(pkg.path){
   devtools::check_built(pkg.path, args="--ignore-vignettes")
 }
 
+Sys.setenv(GITHUB_PAT_GITHUB_COM=PAT, GITHUB_PAT=PAT)
+options(browser="firefox")
+Sys.setenv('_R_CHECK_SYSTEM_CLOCK_' = 0)
+Sys.setenv(OMP_NUM_THREADS = 1)
+options(TAR_ASK="false")
+options(datatable.prettyprint.char=getOption("width")-10)
