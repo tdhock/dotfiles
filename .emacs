@@ -17,10 +17,13 @@
 (setq ess-startup-directory 'default-directory);;https://github.com/emacs-ess/ESS/issues/1187#issuecomment-1038360149
 (setq inferior-R-program "/usr/bin/R");on ubuntu with https://github.com/eddelbuettel/r2u
 (with-eval-after-load "ess-mode" 
-  (define-key ess-mode-map ";" #'ess-insert-assign)
-  (define-key inferior-ess-mode-map ";" #'ess-insert-assign)
+  (define-key ess-mode-map "’" #'ess-insert-assign)
+  (define-key inferior-ess-mode-map "’" #'ess-insert-assign)
   )
 (setq tab-always-indent 'complete)
+(setq indent-tabs-mode nil)
+(global-set-key (kbd "C-«") 'beginning-of-buffer)
+(global-set-key (kbd "C-»") 'end-of-buffer)
 
 ;; Emacs stuff.
 (global-set-key "\M-s" 'isearch-forward-regexp)
