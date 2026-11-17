@@ -57,6 +57,13 @@
 (add-to-list 'safe-local-variable-values '(compile-command . "R -e \"Rcpp::compileAttributes('..')\" && R CMD INSTALL .. && R --vanilla < ../tests/testthat/test-CRAN.R"))
 (add-to-list 'safe-local-variable-values '(compile-command . "R -e \"devtools::test()\""))
 (add-to-list 'safe-local-variable-values '(compile-command . "cd .. && make"))
+;; testthat ansi colors in compilation-mode https://stackoverflow.com/questions/13397737/ansi-coloring-in-compilation-mode
+(ignore-errors
+  (require 'ansi-color)
+  (defun my-colorize-compilation-buffer ()
+    (when (eq major-mode 'compilation-mode)
+      (ansi-color-apply-on-region compilation-filter-start (point-max))))
+  (add-hook 'compilation-filter-hook 'my-colorize-compilation-buffer))
 ;; for gcc error messages when compiling C++ code in a python package via pip.
 (require 'compile)
 (add-to-list 'compilation-error-regexp-alist 'gnu-in-pip)
